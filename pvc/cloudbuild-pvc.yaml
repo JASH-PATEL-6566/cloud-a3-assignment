@@ -8,7 +8,7 @@ steps:
       - "get-credentials"
       - "cloud-a3-gke-cluster"
       - "--zone"
-      - "us-east1-b"
+      - "us-central1-b"
       - "--project"
       - "cloud-a3-453520"
 

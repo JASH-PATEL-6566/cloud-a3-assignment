@@ -33,7 +33,7 @@ steps:
       - "get-credentials"
       - "cloud-a3-gke-cluster"
       - "--zone"
-      - "us-east1-b"
+      - "us-central1-b"
       - "--project"
       - "cloud-a3-453520"
 
@@ -45,7 +45,7 @@ steps:
       - "-f"
       - "/k8s/container1-deployment.yaml"
     env:
-      - "CLOUDSDK_COMPUTE_ZONE=us-east1-b"
+      - "CLOUDSDK_COMPUTE_ZONE=us-central1-b"
       - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
 
   # Update the deployment with the new image
