@@ -69,6 +69,45 @@ module "gke" {
     ]
   }
 }
+
+resource "google_project_iam_member" "artifact_registry_admin" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.admin"
+  member  = "serviceAccount:${var.gke_service_account_name}"
+}
+
+resource "google_project_iam_member" "gke_service_account_artifact_reader" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${var.gke_service_account_name}"
+}
+
+resource "google_project_iam_member" "gke_service_account_developer" {
+  project = var.gcp_project_id
+  role    = "roles/container.developer"
+  member  = "serviceAccount:${var.gke_service_account_name}"
+}
+
+resource "kubernetes_secret" "docker_registry_secret" {
+  metadata {
+    name      = "ars"
+    namespace = "default"
+  }
+
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "us-east1-docker.pkg.dev" = {
+          username = "_json_key"
+          password = file(var.gcp_credentials)  # Path to the service account key file or base64 encoded key
+          email    = "jashpatel6566@gmail.com"
+        }
+      }
+    })
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
+}
   # node_pools_taints = {
   #   all = []
 

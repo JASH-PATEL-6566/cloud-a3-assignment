@@ -14,9 +14,9 @@ spec:
       labels:
         app: second-container
     spec:
-      # serviceAccountName: cloud-a3-service-account
-      # imagePullSecrets:
-      #   - name: ars
+      serviceAccountName: cloud-a3-service-account
+      imagePullSecrets:
+        - name: ars
       containers:
         - name: cloud-a3-container-second
           image: us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest
