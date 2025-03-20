@@ -24,7 +24,7 @@ steps:
       - "container"
       - "clusters"
       - "get-credentials"
-      - "myapp-gke-cluster"
+      - "cloud-a3-gke-cluster"
       - "--zone"
       - "us-central1-b"
     id: "Set up kubectl"
