@@ -1,80 +1,45 @@
 steps:
-  # Authenticate with GCP
-  - name: gcr.io/cloud-builders/gcloud
-    id: "Authenticate with GCP"
-    entrypoint: bash
+  # Build Docker image for container2
+  - name: "gcr.io/cloud-builders/docker"
     args:
-      - "-c"
-      - |
-        gcloud auth configure-docker us-east1-docker.pkg.dev
+      [
+        "build",
+        "-t",
+        "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest",
+        "./container2",
+      ]
 
-  # Build Docker Image for second-container
-  - name: gcr.io/cloud-builders/docker
-    id: "Build second-container"
+  # Push Docker image for container2
+  - name: "gcr.io/cloud-builders/docker"
     args:
-      - "build"
-      - "-t"
-      - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
-      - "./container2"
+      [
+        "push",
+        "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest",
+      ]
 
-  # Push second-container to Artifact Registry
-  - name: gcr.io/cloud-builders/docker
-    id: "Push second-container to Artifact Registry"
+  # Set up kubectl and authenticate with GKE
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
-      - "push"
-      - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
-
-  # Get GKE credentials
-  # - name: gcr.io/cloud-builders/gcloud
-  #   id: "Fetch GKE Credentials"
-  #   args:
-  #     - "container"
-  #     - "clusters"
-  #     - "get-credentials"
-  #     - "cloud-a3-gke-cluster"
-  #     - "--zone"
-  #     - "us-central1-b"
-
-  # # Deploy second-container to GKE
-  # - name: gcr.io/cloud-builders/kubectl
-  #   id: "Deploy second-container to GKE"
-  #   args:
-  #     - "apply"
-  #     - "-f"
-  #     - "./container2/k8s/container2-deployment.yaml"
-  - name: "gcr.io/cloud-builders/gcloud"
-    args:
+      - "gcloud"
       - "container"
       - "clusters"
       - "get-credentials"
-      - "cloud-a3-gke-cluster"
+      - "myapp-gke-cluster"
       - "--zone"
       - "us-central1-b"
-      - "--project"
-      - "cloud-a3-453520"
+    id: "Set up kubectl"
 
-  # Step 5: Delete PVC first to ensure the PV is released
-  - name: "gcr.io/cloud-builders/kubectl"
-    env:
-      - "CLOUDSDK_COMPUTE_ZONE=us-central1-b"
-      - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
+  # Deploy the latest image to GKE
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
+      - "kubectl"
       - "apply"
       - "-f"
-      - "./container2/k8s/container2-deployment.yaml"
-
-  # Update second-container with the latest image
-  - name: gcr.io/cloud-builders/kubectl
-    id: "Update second-container Image"
-    args:
-      - "set"
-      - "image"
-      - "deployment/second-container"
-      - "cloud-a3-container-second=us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
+      - "container2/k8s/container2-deployment.yaml"
+    id: "Deploy container2 to GKE"
 
 images:
   - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
 
 options:
   logging: CLOUD_LOGGING_ONLY
-#
