@@ -14,7 +14,6 @@ spec:
       labels:
         app: first-container
     spec:
-      serviceAccountName: cloud-a3-service-account
       imagePullSecrets:
         - name: ars
       containers:
