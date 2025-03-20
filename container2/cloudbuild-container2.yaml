@@ -44,9 +44,6 @@ steps:
       - "apply"
       - "-f"
       - "./container2/k8s/container2-deployment.yaml"
-    env:
-      - "CLOUDSDK_COMPUTE_ZONE=us-central1-b"
-      - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
 
   # Update second-container with the latest image
   - name: gcr.io/cloud-builders/kubectl
