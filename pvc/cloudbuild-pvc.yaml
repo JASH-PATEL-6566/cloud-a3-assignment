@@ -1,24 +1,21 @@
 steps:
   # Get GKE credentials
-  - name: gcr.io/cloud-builders/gcloud
-    id: "Fetch GKE Credentials"
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
+      - "gcloud"
       - "container"
       - "clusters"
       - "get-credentials"
       - "cloud-a3-gke-cluster"
       - "--zone"
       - "us-central1-b"
-      - "--project"
-      - "cloud-a3-453520"
+    id: "Set up kubectl"
 
-  # Apply PVC configuration
-  - name: gcr.io/cloud-builders/kubectl
-    id: "Deploy PersistentVolumeClaim"
+  # Deploy the latest image to GKE
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
+      - "kubectl"
       - "apply"
       - "-f"
-      - "./pvc/pvc.yaml"
-    env:
-      - "CLOUDSDK_COMPUTE_ZONE=us-east1-b"
-      - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
+      - "pvc/pvc.yaml"
+    id: "Deploy pvc to GKE"
