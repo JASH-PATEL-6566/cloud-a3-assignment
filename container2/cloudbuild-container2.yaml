@@ -15,7 +15,7 @@ steps:
       - "build"
       - "-t"
       - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
-      - "."
+      - "./container2"
 
   # Push second-container to Artifact Registry
   - name: gcr.io/cloud-builders/docker
@@ -43,7 +43,7 @@ steps:
     args:
       - "apply"
       - "-f"
-      - "/k8s/container2-deployment.yaml"
+      - "./container2/k8s/container2-deployment.yaml"
     env:
       - "CLOUDSDK_COMPUTE_ZONE=us-central1-b"
       - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
@@ -62,4 +62,4 @@ images:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-# 
+#
