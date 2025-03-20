@@ -19,3 +19,5 @@ steps:
       - "-f"
       - "pvc/pvc.yaml"
     id: "Deploy pvc to GKE"
+options:
+  logging: CLOUD_LOGGING_ONLY
