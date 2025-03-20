@@ -1,0 +1,64 @@
+steps:
+  # Authenticate with GCP
+  - name: gcr.io/cloud-builders/gcloud
+    id: "Authenticate with GCP"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        gcloud auth configure-docker us-east1-docker.pkg.dev
+
+  # Build the Docker image
+  - name: gcr.io/cloud-builders/docker
+    id: "Build Docker Image"
+    args:
+      - "build"
+      - "-t"
+      - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-first/cloud-a3-container-first:latest"
+      - "."
+
+  # Push the image to Artifact Registry
+  - name: gcr.io/cloud-builders/docker
+    id: "Push Docker Image to Artifact Registry"
+    args:
+      - "push"
+      - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-first/cloud-a3-container-first:latest"
+
+  # Get GKE credentials
+  - name: gcr.io/cloud-builders/gcloud
+    id: "Fetch GKE Credentials"
+    args:
+      - "container"
+      - "clusters"
+      - "get-credentials"
+      - "cloud-a3-gke-cluster"
+      - "--zone"
+      - "us-east1-b"
+      - "--project"
+      - "cloud-a3-453520"
+
+  # Deploy the application to GKE
+  - name: gcr.io/cloud-builders/kubectl
+    id: "Deploy to GKE"
+    args:
+      - "apply"
+      - "-f"
+      - "/k8s/container1-deployment.yaml"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=us-east1-b"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
+
+  # Update the deployment with the new image
+  - name: gcr.io/cloud-builders/kubectl
+    id: "Update Deployment with New Image"
+    args:
+      - "set"
+      - "image"
+      - "deployment/first-container"
+      - "cloud-a3-container-first=us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-first/cloud-a3-container-first:latest"
+
+images:
+  - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-first/cloud-a3-container-first:latest"
+
+options:
+  logging: CLOUD_LOGGING_ONLY

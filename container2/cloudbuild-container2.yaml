@@ -1,0 +1,64 @@
+steps:
+  # Authenticate with GCP
+  - name: gcr.io/cloud-builders/gcloud
+    id: "Authenticate with GCP"
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        gcloud auth configure-docker us-east1-docker.pkg.dev
+
+  # Build Docker Image for second-container
+  - name: gcr.io/cloud-builders/docker
+    id: "Build second-container"
+    args:
+      - "build"
+      - "-t"
+      - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
+      - "."
+
+  # Push second-container to Artifact Registry
+  - name: gcr.io/cloud-builders/docker
+    id: "Push second-container to Artifact Registry"
+    args:
+      - "push"
+      - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
+
+  # Get GKE credentials
+  - name: gcr.io/cloud-builders/gcloud
+    id: "Fetch GKE Credentials"
+    args:
+      - "container"
+      - "clusters"
+      - "get-credentials"
+      - "cloud-a3-gke-cluster"
+      - "--zone"
+      - "us-east1-b"
+      - "--project"
+      - "cloud-a3-453520"
+
+  # Deploy second-container to GKE
+  - name: gcr.io/cloud-builders/kubectl
+    id: "Deploy second-container to GKE"
+    args:
+      - "apply"
+      - "-f"
+      - "/k8s/container2-deployment.yaml"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=us-east1-b"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
+
+  # Update second-container with the latest image
+  - name: gcr.io/cloud-builders/kubectl
+    id: "Update second-container Image"
+    args:
+      - "set"
+      - "image"
+      - "deployment/second-container"
+      - "cloud-a3-container-second=us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
+
+images:
+  - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest"
+
+options:
+  logging: CLOUD_LOGGING_ONLY

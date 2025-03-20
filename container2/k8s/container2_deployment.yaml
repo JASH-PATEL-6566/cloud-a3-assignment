@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second-container
+  labels:
+    app: second-container
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: second-container
+  template:
+    metadata:
+      labels:
+        app: second-container
+    spec:
+      # serviceAccountName: cloud-a3-service-account
+      # imagePullSecrets:
+      #   - name: ars
+      containers:
+        - name: cloud-a3-container-second
+          image: us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-second/cloud-a3-container-second:latest
+          ports:
+            - containerPort: 6001
+          env:
+            - name: SHARED_VOLUME_PATH
+              value: "/jash_PV_dir"
+            - name: PORT
+              value: "6001"
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /jash_PV_dir
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: shared-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: second-container-service
+spec:
+  selector:
+    app: second-container
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 6001
