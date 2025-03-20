@@ -25,8 +25,24 @@ steps:
       - "us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-first/cloud-a3-container-first:latest"
 
   # Get GKE credentials
-  - name: gcr.io/cloud-builders/gcloud
-    id: "Fetch GKE Credentials"
+  # - name: gcr.io/cloud-builders/gcloud
+  #   id: "Fetch GKE Credentials"
+  #   args:
+  #     - "container"
+  #     - "clusters"
+  #     - "get-credentials"
+  #     - "cloud-a3-gke-cluster"
+  #     - "--zone"
+  #     - "us-central1-b"
+
+  # # Deploy the application to GKE
+  # - name: gcr.io/cloud-builders/kubectl
+  #   id: "Deploy to GKE"
+  #   args:
+  #     - "apply"
+  #     - "-f"
+  #     - "./container1/k8s/container1-deployment.yaml"
+  - name: "gcr.io/cloud-builders/gcloud"
     args:
       - "container"
       - "clusters"
@@ -37,9 +53,11 @@ steps:
       - "--project"
       - "cloud-a3-453520"
 
-  # Deploy the application to GKE
-  - name: gcr.io/cloud-builders/kubectl
-    id: "Deploy to GKE"
+  # Step 5: Delete PVC first to ensure the PV is released
+  - name: "gcr.io/cloud-builders/kubectl"
+    env:
+      - "CLOUDSDK_COMPUTE_ZONE=us-central1-b"
+      - "CLOUDSDK_CONTAINER_CLUSTER=cloud-a3-gke-cluster"
     args:
       - "apply"
       - "-f"
