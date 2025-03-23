@@ -14,9 +14,8 @@ spec:
       labels:
         app: first-container
     spec:
-      # serviceAccountName: cloud-a3-service-account
-      # imagePullSecrets:
-      #   - name: ars
+      imagePullSecrets:
+        - name: ars
       containers:
         - name: cloud-a3-container-first
           image: us-east1-docker.pkg.dev/cloud-a3-453520/cloud-a3-container-first/cloud-a3-container-first:latest
